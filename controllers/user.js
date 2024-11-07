@@ -10,20 +10,26 @@ cloudinary.config({
               api_key: process.env.API_KEY,
               api_secret: process.env.API_SECRET
 });
+
 const signup = async (req, res) => {
               try {
+                            // Check if the user already exists
+                            const existingUser = await User.findOne({ email: req.body.email });
 
-                            User.find({ email: req.body.email }).then((users) => {
-                                          if (users.length > 0) {
-                                                        return res.json({
-                                                                      success: false,
-                                                                      message: "User already registered"
-                                                        })
-                                          }
-                            })
+                            if (existingUser) {
+                                          return res.status(409).json({
+                                                        success: false,
+                                                        message: "User already registered"
+                                          });
+                            }
+
+                            // Upload image to Cloudinary
                             const uploadedImage = await cloudinary.uploader.upload(req.files.image.tempFilePath);
+
+                            // Hash the user's password
                             const hashPassword = await bcrypt.hash(req.body.password, 10);
 
+                            // Create a new user instance
                             const user = new User({
                                           _id: new mongoose.Types.ObjectId(),
                                           firstName: req.body.firstName,
@@ -34,24 +40,24 @@ const signup = async (req, res) => {
                                           imageId: uploadedImage.public_id
                             });
 
-
+                            // Save the user to the database
                             await user.save();
 
-                            // Send a success response
-                            res.json({
+                            // Send a success response without the token
+                            res.status(201).json({
                                           success: true,
                                           message: "Signup successfully",
-                                          user: user,
-                                          token: token
+                                          user: user
                             });
-              } catch (err) {
 
-                            res.json({
+              } catch (err) {
+                            res.status(500).json({
                                           success: false,
                                           message: err.message
                             });
               }
-}
+};
+
 
 const login = async (req, res) => {
               try {
