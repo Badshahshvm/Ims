@@ -96,7 +96,7 @@ const deleteCourse = async (req, res) => {
 }
 const getCourseDetails = async (req, res) => {
               try {
-                            const course = await Course.findById(req.params.courseId).select('_id user_id courseName description proce startingDate endDate imageUrl imageId');
+                            const course = await Course.findById(req.params.courseId).select('_id user_id courseName description price startingDate endDate imageUrl imageId');
                             const student = await Student.find({ courseId: req.params.courseId })
                             if (!course) {
                                           return res.json({
