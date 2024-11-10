@@ -1,7 +1,7 @@
 const Student = require("../models/studem")
 const mongoose = require("mongoose")
 const Course = require("../models/course")
-
+const Fee = require("../models/fees")
 require("dotenv").config()
 const cloudinary = require("cloudinary").v2
 
@@ -76,33 +76,45 @@ const getAllStudents = async (req, res) => {
 
 
 
-const getStudent = async (req, res) => {
+ const getStudent = async (req, res) => {
               try {
+                            const authHeader = req.headers.authorization;
+                            if (!authHeader) {
+                                          return res.status(401).json({ success: false, message: "Authorization header missing" });
+                            }
+
+                            const token = authHeader.split(" ")[1];
+                            const user = jwt.verify(token, 'shivam 123');
+
                             const student = await Student.findById(req.params.studentId)
                                           .select('_id user_id fullName phone address email imageUrl imageId courseId');
 
                             if (!student) {
-                                          return res.json({
-                                                        success: false,
-                                                        message: "No student found",
-                                          });
+                                          return res.status(404).json({ success: false, message: "No student found" });
                             }
 
-                            const course = await Course.findById({ _id: student.courseId });
+                            const course = await Course.findById(student.courseId);
+                            const fee = await Fee.find({
+                                          user_id: user._id,
+                                          courseId: student.courseId,
+                                          phone: student.phone
+                            });
 
                             res.json({
                                           success: true,
                                           message: "Student and Course Details",
                                           student: student,
                                           course: course,
+                                          fee: fee
                             });
               } catch (err) {
-                            res.json({
+                            res.status(500).json({
                                           success: false,
                                           message: err.message,
                             });
               }
 };
+
 
 
 
