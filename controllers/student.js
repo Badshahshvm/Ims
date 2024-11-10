@@ -75,6 +75,37 @@ const getAllStudents = async (req, res) => {
 };
 
 
+
+const getStudent = async (req, res) => {
+              try {
+                            const student = await Student.findById(req.params.studentId)
+                                          .select('_id user_id fullName phone address email imageUrl imageId courseId');
+
+                            if (!student) {
+                                          return res.json({
+                                                        success: false,
+                                                        message: "No student found",
+                                          });
+                            }
+
+                            const course = await Course.findById({ _id: student.courseId });
+
+                            res.json({
+                                          success: true,
+                                          message: "Student and Course Details",
+                                          student: student,
+                                          course: course,
+                            });
+              } catch (err) {
+                            res.json({
+                                          success: false,
+                                          message: err.message,
+                            });
+              }
+};
+
+
+
 const getStudentForCourse = async (req, res) => {
               try {
 
