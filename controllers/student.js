@@ -251,4 +251,4 @@ const getLatestFiveStudent = async (req, res) => {
                             })
               }
 }
-module.exports = { addStudent, getAllStudents, getStudentForCourse, deleteStudent, updateStudent, getLatestFiveStudent }
+module.exports = { addStudent, getAllStudents, getStudentForCourse, deleteStudent, updateStudent, getLatestFiveStudent , getStudent}
