@@ -1,5 +1,5 @@
 const express = require("express");
-const { addStudent, getAllStudents, getStudentForCourse, deleteStudent, updateStudent, getLatestFiveStudent } = require("../controllers/student");
+const { addStudent, getAllStudents, getStudentForCourse, deleteStudent, updateStudent, getLatestFiveStudent,getStudent } = require("../controllers/student");
 const checkAuth = require("../middlewares/checkAuth");
 const router = express.Router()
 
