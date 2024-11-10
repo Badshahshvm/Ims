@@ -9,4 +9,5 @@ router.get("/all/:courseId", checkAuth, getStudentForCourse)
 router.delete("/:studentId", checkAuth, deleteStudent)
 router.put("/:studentId", checkAuth, updateStudent)
 router.get("/latest-student", checkAuth, getLatestFiveStudent)
+router.get("/student-detail/:studentId", checkAuth, getStudent)
 module.exports = router
