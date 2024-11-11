@@ -66,34 +66,80 @@ const getAllCourses = async (req, res) => {
               }
 }
 
+// const deleteCourse = async (req, res) => {
+//               try {
+//                             const token = req.headers.authorization.split(" ")[1]
+//                             const user = await jwt.verify(token, 'shivam 123')
+//                             const course = await Course.findById(req.params.courseId)
+//                             if (course.user_id.toString() !== user._id) {
+//                                           return res.json({
+//                                                         success: false,
+//                                                         message: "Invalid Credentials"
+//                                           })
+//                             }
+
+//                             cloudinary.uploader.destroy(course.imageId)
+//                             const deleteCourse = await Course.findByIdAndDelete(req.params.courseId);
+//                             res.json({
+//                                           success: true,
+//                                           message: "Course deleted Successfully",
+//                                           deletedCourse: deleteCourse
+//                             })
+
+//               }
+//               catch (err) {
+//                             res.json({
+//                                           success: false,
+//                                           message: err.message
+//                             })
+//               }
+// }
+
+
+
 const deleteCourse = async (req, res) => {
               try {
-                            const token = req.headers.authorization.split(" ")[1]
-                            const user = await jwt.verify(token, 'shivam 123')
-                            const course = await Course.findById(req.params.courseId)
-                            if (course.user_id.toString() !== user._id) {
-                                          return res.json({
+                            const token = req.headers.authorization.split(" ")[1];
+                            const user = await jwt.verify(token, 'shivam 123');
+
+                            const course = await Course.findById(req.params.courseId);
+                            if (!course) {
+                                          return res.status(404).json({
                                                         success: false,
-                                                        message: "Invalid Credentials"
-                                          })
+                                                        message: "Course not found"
+                                          });
                             }
 
-                            cloudinary.uploader.destroy(course.imageId)
-                            const deleteCourse = await Course.findByIdAndDelete(req.params.courseId);
+                            if (course.user_id.toString() !== user._id) {
+                                          return res.status(403).json({
+                                                        success: false,
+                                                        message: "Unauthorized action"
+                                          });
+                            }
+
+                            await cloudinary.uploader.destroy(course.imageId);
+
+                            const deletedCourse = await Course.findByIdAndDelete(req.params.courseId);
+                            const deletedStudents = await Student.deleteMany({
+                                          courseId: req.params.courseId
+                            });
+
                             res.json({
                                           success: true,
-                                          message: "Course deleted Successfully",
-                                          deletedCourse: deleteCourse
-                            })
+                                          message: "Course deleted successfully",
+                                          deletedCourse: deletedCourse,
+                                          deletedStudents: deletedStudents
+                            });
 
-              }
-              catch (err) {
-                            res.json({
+              } catch (err) {
+                            console.error(err);
+                            res.status(500).json({
                                           success: false,
                                           message: err.message
-                            })
+                            });
               }
-}
+};
+
 const getCourseDetails = async (req, res) => {
               try {
                             const course = await Course.findById(req.params.courseId).select('_id user_id courseName description price startingDate endDate imageUrl imageId');
