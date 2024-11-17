@@ -253,4 +253,36 @@ const getSomeCourses = async (req, res) => {
                             })
               }
 }
-module.exports = { addCourse, getAllCourses, deleteCourse, updateCourse, getCourseDetails, getSomeCourses }
+
+
+const homeCourse = async (req, res) => {
+              try {
+                            const token = req.headers.authorization.split(" ")[1];
+                            const user = await jwt.verify(token, "shivam 123");
+
+                            const course = await Course.find({ user_id: user._id })
+                                          .sort({ $natural: -1 })
+                                          .limit(5);
+
+                            const students = await Student.find({ user_id: user._id })
+                                          .sort({ $natural: -1 })
+                                          .limit(5);
+
+                            const totalCourse = await Course.countDocuments({ user_id: user._id });
+                            const totalStudent = await Student.countDocuments({ user_id: user._id });
+                         
+                            res.json({
+                                          success: true,
+                                          courses: course,
+                                          students: students,
+                                          totalCourse: totalCourse, // Include total courses in response
+                                          totalStudent:totalStudent
+                            });
+              } catch (err) {
+                            res.json({
+                                          success: false,
+                                          message: err.message,
+                            });
+              }
+};
+module.exports = { addCourse, getAllCourses, deleteCourse, updateCourse, getCourseDetails, getSomeCourses, homeCourse }
