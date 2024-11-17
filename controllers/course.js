@@ -3,6 +3,7 @@ const mongoose = require("mongoose")
 const cloudinary = require("cloudinary").v2
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
+const Fee = require("../models/fees")
 require("dotenv").config();
 const Student = require("../models/studem")
 cloudinary.config({
@@ -255,6 +256,46 @@ const getSomeCourses = async (req, res) => {
 }
 
 
+// const homeCourse = async (req, res) => {
+//               try {
+//                             const token = req.headers.authorization.split(" ")[1];
+//                             const user = await jwt.verify(token, "shivam 123");
+
+//                             const course = await Course.find({ user_id: user._id })
+//                                           .sort({ $natural: -1 })
+//                                           .limit(5);
+
+//                             const students = await Student.find({ user_id: user._id })
+//                                           .sort({ $natural: -1 })
+//                                           .limit(5);
+
+//                             const totalCourse = await Course.countDocuments({ user_id: user._id });
+//                             const totalStudent = await Student.countDocuments({ user_id: user._id });
+
+//                             const totalFee = await Fee.aggregate([
+//                                           { $match: { user_id: user._id } },
+//                                           { $group: { _id: null, total: { $sum: "$amount" } } },
+//                             ]);
+
+
+//                             res.json({
+//                                           success: true,
+//                                           courses: course,
+//                                           students: students,
+//                                           totalCourse: totalCourse,
+//                                           totalStudent: totalStudent,
+//                                           totalFee: totalFee.length > 0 ? totalFee[0].total : 0, // Handle cases where no fees are present
+//                             });
+//               } catch (err) {
+//                             res.json({
+//                                           success: false,
+//                                           message: err.message,
+//                             });
+//               }
+// };
+
+
+
 const homeCourse = async (req, res) => {
               try {
                             const token = req.headers.authorization.split(" ")[1];
@@ -270,13 +311,27 @@ const homeCourse = async (req, res) => {
 
                             const totalCourse = await Course.countDocuments({ user_id: user._id });
                             const totalStudent = await Student.countDocuments({ user_id: user._id });
-                         
+                            const fees = await Fee.find({ user_id: user._id });
+
+
+
+                            // Using JavaScript reduce function to calculate the total amount and convert fee.amount to a number
+                            const totalFee = fees.reduce((total, fee) => total + parseInt(fee.amount), 0);
+
+                            console.log(totalFee);
+
+                            //  // Ensure totalFee has a valid value
+                            //               const totalAmount = totalFee.length > 0 ? totalFee[0].total : 0;
+
+
                             res.json({
                                           success: true,
                                           courses: course,
                                           students: students,
-                                          totalCourse: totalCourse, // Include total courses in response
-                                          totalStudent:totalStudent
+                                          totalCourse: totalCourse,
+                                          totalStudent: totalStudent,
+                                          fees: fees,
+                                          totalFeeta: totalFee, // Handle cases where no fees are present
                             });
               } catch (err) {
                             res.json({
@@ -285,4 +340,5 @@ const homeCourse = async (req, res) => {
                             });
               }
 };
+
 module.exports = { addCourse, getAllCourses, deleteCourse, updateCourse, getCourseDetails, getSomeCourses, homeCourse }
