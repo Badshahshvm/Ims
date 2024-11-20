@@ -5,7 +5,7 @@ const bodyParser = require("body-parser")
 const cors = require('cors');
 const user = require("./routes/user")
 const course = require("./routes/course")
-
+const Admin = require("./routes/miscellenous")
 const fees = require("./routes/fees");
 const student = require("./routes/students")
 const mongoose = require("mongoose");
@@ -20,6 +20,7 @@ app.use(fileUpload({
               useTempFiles: true,
               // tempFileDir: '/tmp/'
 }))
+app.use("/api/v1/admin", Admin)
 app.use("/api/v1/course", course)
 app.use("/api/v1/user", user);
 app.use("/api/v1/fees", fees);
