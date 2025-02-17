@@ -1,1 +1,1 @@
-api link_- https://ims-jqqb.onrender.com/
+api link_- https://ims-jqqb.onrender.com
